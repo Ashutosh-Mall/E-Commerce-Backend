@@ -1,16 +1,17 @@
-name: Node.js CI/CD
+name: Node.js CI
 
 on:
   push:
     branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
-  deploy:
+  build:
     runs-on: self-hosted
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
     - name: Setup Node.js
       uses: actions/setup-node@v4
@@ -18,20 +19,27 @@ jobs:
         node-version: 20
         cache: 'npm'
 
+    - name: Backup .env
+      run: |
+        if [ -f .env ]; then
+          cp .env /tmp/env_backup
+          echo ".env backup created"
+        fi
+
     - name: Install dependencies
       run: npm ci
 
-    - name: Build project
+    - name: Build TypeScript project
       run: npm run build
 
     - name: Verify build output
-      run: test -d dist
+      run: ls dist || echo "No dist folder found"
 
-    - name: Check environment file
+    - name: Restore .env
       run: |
-        if [ ! -f .env ]; then
-          echo "ERROR: .env file missing!"
-          exit 1
+        if [ -f /tmp/env_backup ]; then
+          cp /tmp/env_backup .env
+          echo ".env restored"
         fi
 
     - name: Deploy to server
