@@ -31,4 +31,7 @@
       - name: Deploy to server
         run: |
           pm2 restart backend || pm2 start dist/index.js --name backend
+          
+          pm2 restart email-worker || pm2 start dist/workers/email.worker.js --name email-worker
+
           pm2 save
