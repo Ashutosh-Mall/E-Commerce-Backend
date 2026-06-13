@@ -1,44 +1,44 @@
-import express, { Application , Request, Response } from "express";
-import dotenv from "dotenv";
-dotenv.config();
+import express, { Application, Request, Response } from "express";
+import { env } from "./config/env.js";
+import cors from "cors";
+import connectDb from "./config/db.js";
+import { errorHandler } from "./middleware/errorHandler.js";
 import authRouter from "./routes/Auth.route.js";
 import adminProductRouter from "./admin/routes/product.routes.js";
-import connectDb from "./config/db.js";
 import cookieParser from "cookie-parser";
-import cors from "cors";
-import { env } from "./config/env.js";
-import { errorHandler } from "./middleware/errorHandler.js";
 import { apiEnvelope } from "./utils/ApiEnvelope.js";
 
-await connectDb();
+const startServer = async () => {
+  await connectDb();
 
-const app: Application = express();
-const port = env.PORT || 3000;
+  const app: Application = express();
+  const port = env.PORT || 3000;
 
-app.use(
-  cors({
-    origin: env.FRONTEND_URL,
-    credentials: true,
-  }),
-);
-app.use(express.json());
-app.use(cookieParser());
-
-app.get("/", (req, res) => {
-  res.send("Backend Running");
-});
-
-app.use("/api/auth", authRouter);
-app.use("/api/admin", adminProductRouter);
-
-app.use((req: Request, res: Response) => {
-  res.status(404).json(
-    apiEnvelope(false, "Route not found")
+  app.use(
+    cors({
+      origin: env.FRONTEND_URL,
+      credentials: true,
+    }),
   );
-});
+  app.use(express.json());
+  app.use(cookieParser());
 
-app.use(errorHandler);
+  app.get("/", (req, res) => {
+    res.send("Backend Running");
+  });
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+  app.use("/api/auth", authRouter);
+  app.use("/api/admin", adminProductRouter);
+
+  app.use((req: Request, res: Response) => {
+    res.status(404).json(apiEnvelope(false, "Route not found"));
+  });
+
+  app.use(errorHandler);
+
+  app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
+};
+
+startServer();
