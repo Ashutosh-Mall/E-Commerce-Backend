@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-dotenv.config();
+dotenv.config({ path: "/home/ubuntu/envs/backend.env" });
 
 export const env = {
   PORT: process.env.PORT || "5000",
