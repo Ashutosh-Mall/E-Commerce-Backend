@@ -1,6 +1,6 @@
 import express from "express";
 import { upload } from "../../middleware/multer.js";
-import { addProduct } from "../controllers/product.controller.js";
+import { addProduct, updateProduct, deleteProduct  } from "../controllers/product.controller.js";
 import { isAuth } from "../../middleware/isAuth.js";
 
 const adminProductRouter = express.Router();
@@ -11,4 +11,16 @@ adminProductRouter.post(
   addProduct
 );
 
+adminProductRouter.post(
+  "/update/:id",
+  isAuth,
+  upload.array("images", 4),
+  updateProduct
+);
+
+adminProductRouter.delete(
+  "/delete/:id",
+  isAuth,
+  deleteProduct
+)
 export default adminProductRouter;
