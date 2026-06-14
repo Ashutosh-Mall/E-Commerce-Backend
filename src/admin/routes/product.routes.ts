@@ -1,6 +1,6 @@
 import express from "express";
 import { upload } from "../../middleware/multer.js";
-import { addProduct, updateProduct, deleteProduct  } from "../controllers/product.controller.js";
+import { addProduct, updateProduct, deleteProduct, getAllProducts  } from "../controllers/product.controller.js";
 import { isAuth } from "../../middleware/isAuth.js";
 
 const adminProductRouter = express.Router();
@@ -22,5 +22,11 @@ adminProductRouter.delete(
   "/delete/:id",
   isAuth,
   deleteProduct
+)
+
+adminProductRouter.get(
+  "/get",
+  isAuth,
+  getAllProducts
 )
 export default adminProductRouter;
