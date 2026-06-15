@@ -125,7 +125,7 @@ export const createOrder = async (
     let totalAmount = 0;
 
     const orderItems = cart.items.map((item: any) => {
-      const price = item.product.price; 
+      const price = item.product.price;
       totalAmount += price * item.quantity;
 
       return {

@@ -1,23 +1,23 @@
-  name: Node.js CI
-  
-  on:
-    push:
-      branches: [ "main" ]
-    pull_request:
-      branches: [ "main" ]
-  
-  jobs:
-    build:
-      runs-on: self-hosted
-  
-      steps:
+name: Node.js CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: self-hosted
+
+    steps:
       - uses: actions/checkout@v4
-  
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: "npm"
 
       - name: Create .env
         run: |
@@ -33,20 +33,20 @@
           CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }}
           CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }}
           EOF
-  
+
       - name: Install dependencies
         run: npm ci
-  
+
       - name: Build TypeScript project
         run: npm run build
-  
+
       - name: Verify build output
         run: ls dist || echo "No dist folder found"
-  
+
       - name: Deploy to server
         run: |
           pm2 restart backend --update-env || pm2 start dist/index.js --name backend
-          
+
           pm2 restart email-worker --update-env || pm2 start dist/workers/email.worker.js --name email-worker
 
           pm2 save

@@ -31,7 +31,6 @@ const startServer = async () => {
   // ---------------------------------------------------------------------------
 
   app.use("/api/auth", authRouter);
-  
 
   // ---------------------------------------------------------------------------
   app.use("/api/admin/products", adminProductRouter);

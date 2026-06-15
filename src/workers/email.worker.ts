@@ -5,14 +5,14 @@ import { sendMail } from "../config/nodemailer.js";
 const worker = new Worker(
   "email",
   async (job) => {
-    const {emailStr,htmlContent} = job.data
-    let email:string = emailStr.toString();
-    let html:string = htmlContent.toString();
+    const { emailStr, htmlContent } = job.data;
+    let email: string = emailStr.toString();
+    let html: string = htmlContent.toString();
     console.log("Processing job:", job.id);
 
     await sendMail(email, html);
   },
-  { connection }
+  { connection },
 );
 
 worker.on("completed", (job) => {

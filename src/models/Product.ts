@@ -53,7 +53,7 @@ const productSchema = new Schema<IProduct>(
       default: 0,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const Product = mongoose.model<IProduct>("Product", productSchema);

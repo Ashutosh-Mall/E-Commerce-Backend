@@ -51,13 +51,7 @@ const orderSchema = new Schema<IOrder>(
 
     orderStatus: {
       type: String,
-      enum: [
-        "pending",
-        "processing",
-        "shipped",
-        "delivered",
-        "cancelled",
-      ],
+      enum: ["pending", "processing", "shipped", "delivered", "cancelled"],
       default: "pending",
     },
 
@@ -67,7 +61,7 @@ const orderSchema = new Schema<IOrder>(
       default: "pending",
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const Order = mongoose.model<IOrder>("Order", orderSchema);

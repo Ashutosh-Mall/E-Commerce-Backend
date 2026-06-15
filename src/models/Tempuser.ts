@@ -45,7 +45,7 @@ const TempuserSchema = new Schema<IUser>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const TempUser = mongoose.model<IUser>("TempUser", TempuserSchema);

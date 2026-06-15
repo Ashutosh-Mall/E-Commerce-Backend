@@ -35,7 +35,7 @@ const reviewSchema = new Schema<IReview>(
       trim: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 reviewSchema.index(
@@ -45,7 +45,7 @@ reviewSchema.index(
   },
   {
     unique: true,
-  }
+  },
 );
 
 const Review = mongoose.model<IReview>("Review", reviewSchema);

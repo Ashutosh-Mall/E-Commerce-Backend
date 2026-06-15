@@ -115,7 +115,9 @@ export const updateProduct = async (
 
     await redis.del("product:all");
 
-    res.status(200).json(apiEnvelope(true, "Product updated successfully", product));
+    res
+      .status(200)
+      .json(apiEnvelope(true, "Product updated successfully", product));
   } catch (error) {
     next(error);
   }
@@ -179,6 +181,11 @@ export const getAllProducts = async (
 
     const products = await Product.find();
 
+    if (!products) {
+      res.status(400).json(apiEnvelope(false, "product not found"));
+      return;
+    }
+
     await redis.set(
       "product:all",
       JSON.stringify(products),
@@ -189,6 +196,41 @@ export const getAllProducts = async (
     res
       .status(200)
       .json(apiEnvelope(true, "Products fetched from DB", products));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getProduct = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const userId = (req as any).userId;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      res.status(404).json(apiEnvelope(false, "User not found"));
+      return;
+    }
+
+    if (user.role !== "admin") {
+      res.status(403).json(apiEnvelope(false, "Access denied. Admin only."));
+      return;
+    }
+
+    const product = await Product.findById(id);
+
+    if (!product) {
+      res.status(400).json(apiEnvelope(false, "product not found"));
+      return;
+    }
+
+    res
+      .status(200)
+      .json(apiEnvelope(true, "Products fetched from DB", product));
   } catch (error) {
     next(error);
   }
