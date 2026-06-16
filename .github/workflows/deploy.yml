@@ -1,0 +1,96 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install & Build
+        run: |
+          npm ci
+          npm run build
+
+      - name: Create deployment package
+        run: |
+          mkdir deploy
+          cp -r dist deploy/
+          cp package*.json deploy/
+          cp ecosystem.config.cjs deploy/
+          tar -czf deploy.tar.gz deploy
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app
+          path: deploy.tar.gz
+
+      - name: Deploy to EC2
+        env:
+          HOST: ${{ secrets.EC2_HOST }}
+          USER: ${{ secrets.EC2_USERNAME }}
+          KEY: ${{ secrets.EC2_SSH_KEY }}
+
+        run: |
+          echo "$KEY" > key.pem
+          chmod 600 key.pem
+
+          scp -i key.pem -o StrictHostKeyChecking=no deploy.tar.gz $USER@$HOST:/tmp/
+
+          ssh -i key.pem -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
+
+          set -e
+
+          APP_DIR="/var/www/express-app"
+
+          sudo mkdir -p $APP_DIR
+          sudo chown -R ubuntu:ubuntu $APP_DIR
+
+          cd $APP_DIR
+
+          echo "Extracting..."
+          tar -xzf /tmp/deploy.tar.gz --strip-components=1
+
+          echo "Installing dependencies..."
+          npm ci --omit=dev
+
+          echo "Creating .env from GitHub secrets..."
+
+          cat > .env <<EOL
+          NODE_ENV=production
+          PORT=${{ secrets.PORT }}
+          MONGO_URI=${{ secrets.MONGO_URI }}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          FRONTEND_URL=${{ secrets.FRONTEND_URL }}
+          REDIS_URL=${{ secrets.REDIS_URL }}
+
+          CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }}
+          CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }}
+          CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }}
+
+          SMTP_USER=${{ secrets.SMTP_USER }}
+          SMTP_PASS=${{ secrets.SMTP_PASS }}
+          EOL
+
+          echo "Restarting PM2..."
+
+          pm2 start ecosystem.config.cjs || pm2 reload ecosystem.config.cjs
+          pm2 save
+
+          rm /tmp/deploy.tar.gz
+
+          EOF
+
+          rm key.pem
