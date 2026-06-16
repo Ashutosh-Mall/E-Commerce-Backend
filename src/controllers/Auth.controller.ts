@@ -115,8 +115,9 @@ export const verifyOtp = async (
 
     res.cookie("abctoken", token, {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
     res.status(201).json(apiEnvelope(true, "User verified & created", userObj));
@@ -158,8 +159,9 @@ export const login = async (
 
     res.cookie("abctoken", token, {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
     const { password: _, ...userObj } = user.toObject();
@@ -181,8 +183,8 @@ export const logout = async (
   try {
     res.clearCookie("abctoken", {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
     });
 
     res.status(200).json(apiEnvelope(true, "Logout successful"));
