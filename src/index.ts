@@ -17,7 +17,7 @@ const startServer = async () => {
 
   app.use(
     cors({
-      origin: env.FRONTEND_URL,
+      origin: [env.FRONTEND_URL, "http://localhost:5173"],
       credentials: true,
     }),
   );
