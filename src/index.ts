@@ -13,7 +13,7 @@ const startServer = async () => {
   await connectDb();
 
   const app: Application = express();
-  const port = env.PORT || 3000;
+  const port = Number(env.PORT) || 3000;
 
   app.use(
     cors({
@@ -42,7 +42,7 @@ const startServer = async () => {
 
   app.use(errorHandler);
 
-  app.listen(port, () => {
+  app.listen(port, "0.0.0.0", () => {
     console.log(`Server running on port ${port}`);
   });
 };
